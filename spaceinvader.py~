@@ -1,0 +1,348 @@
+import time
+from tkinter import *
+from random import *
+ne=-1
+laser1=0
+x=0
+stop=0
+temps=0
+doubletir=0
+
+ammo=100
+score=0
+y=470
+time=70
+gameover=0
+list_en=[]
+nom_enemi=[]
+x_enemi=[]
+y_enemi=[]
+appuisdroite=0
+appuisgauche=0
+appuisspace=0
+def double(xm,ym,mis,mis1):
+    global nom_enemi,x_enemi,y_enemi,score,x
+    
+    if ym>0:
+        
+        for I in nom_enemi:
+           
+            
+            if (ym==y_enemi[I] and xm+20==x_enemi[I]):
+                nom_enemi.remove(I)
+                fen.after(1,enemi,-40,xm,0,I)
+                can.delete(list_en[I])
+                score+=1000
+            if (ym==y_enemi[I] and xm-20==x_enemi[I]):
+                nom_enemi.remove(I)
+                fen.after(1,enemi,-40,xm,0,I)
+                can.delete(list_en[I])
+                score+=1000
+               
+        z=1
+        can.delete(mis)
+        can.delete(mis1)
+        ym-=10
+        
+        mis=can.create_rectangle(xm+39,ym,xm+42,ym-10,fill="yellow")
+        mis1=can.create_rectangle(xm-1,ym,xm+2,ym-10,fill="yellow")
+        
+        fen.after(1,affscore)
+        fen.after(20,double,xm,ym,mis,mis1)
+        
+
+def stoplaser(aff_temps):
+    global laser1,stop,temps,doubletir
+    can.delete(aff_temps)
+    if temps>=0:
+        stop=1
+        temps-=1
+        if laser1==1:
+            aff_temps=can.create_text(350,0,text="laser:"+str(temps),font="ubuntu 20",anchor=N,fill="red")
+        elif doubletir==1:
+            aff_temps=can.create_text(350,0,text="double:"+str(temps),font="ubuntu 20",anchor=N,fill="red")            
+        fen.after(1000,stoplaser,aff_temps)
+    
+        
+    else:
+        stop=0
+        doubletir=0
+        laser1=0
+def randombonus(choixbonu):
+    global laser1,ammo,textammo,nom_enemi,stop,temps,doubletir
+    
+    if choixbonu==0:
+        laser1=1
+        doubletir=0
+        
+        temps=30
+        if stop==0:
+            stop+=1
+            
+            fen.after(3,stoplaser,0)
+    elif choixbonu<=2:
+        ammo+=100
+        can.delete(textammo)
+        textammo=can.create_text(0,0,font="ubuntu 20",text="munition: "+str(ammo),fill="red",anchor=NW)
+
+    elif choixbonu==4:
+        nom_enemi=[]
+    else:
+        doubletir=1
+        laser1=0
+        temps=30
+        if stop==0:
+            stop+=1
+            
+            fen.after(3,stoplaser,0)
+        
+
+
+
+        
+        
+    
+
+def bonus(xb,yb,bonus1,nb,choixbonu):
+    global gameover,x_enemi,nom_enemi,y_enemi,score,x
+    
+    x_enemi[nb]=xb
+    y_enemi[nb]=yb
+    can.delete(bonus1)
+    if nb in nom_enemi:
+        yb+=10
+        if yb==420 and xb==x:
+            fen.after(1,randombonus,choixbonu)
+        else:
+            if choixbonu==0:
+                bonus1=can.create_image(xb+10,yb,anchor=NW,image=photolaser)
+            elif choixbonu<=2:
+                bonus1=can.create_image(xb+10,yb,anchor=NW,image=photoammo)
+            elif choixbonu==4:
+                bonus1=can.create_image(xb+10,yb,anchor=NW,image=photodouble)                
+            else:
+                bonus1=can.create_image(xb+10,yb,anchor=NW,image=photonuke)
+                
+                
+
+            
+            fen.after(100,bonus,xb,yb,bonus1,nb,choixbonu)
+        
+def laser(xl,state,las):
+    global score
+    if state==0:
+        
+        las=can.create_rectangle(xl+18,450,xl+23,0,fill="blue")
+        for I in nom_enemi:
+           
+            
+            if xl==x_enemi[I]:
+                nom_enemi.remove(I)
+                score+=1000
+                fen.after(1,affscore)
+        fen.after(100,laser,xl,1,las)
+    else:
+        can.delete(las)
+        
+    
+    
+
+
+def affscore():
+    global score,textscore
+    can.delete(textscore)
+    textscore = can.create_text(700,0,font="ubuntu 20",text="score: "+str(score),fill="red",anchor=NE)
+    
+def reldroite(a):
+    global appuisdroite
+    appuisdroite=1
+
+def droite(a):
+    global x,vaisseau,appuisdroite
+    appuisgauche=0
+    if appuisdroite==0:
+    
+        if x<660:
+            
+            x+=20
+            can.delete(vaisseau)
+            vaisseau = can.create_image(x,450 ,image=photo, anchor=W)
+        fen.after(100,droite,a)
+    else:
+        appuisdroite=0
+
+def relgauche(a):
+    global appuisgauche
+    appuisgauche=1
+def gauche(a):
+    global x,vaisseau,appuisgauche
+    appuisdroite=0
+    
+    if appuisgauche==0:
+        if x>0:
+            
+            x-=20
+            can.delete(vaisseau)
+            vaisseau = can.create_image(x,450 ,image=photo, anchor=W)
+        fen.after(100,gauche,a)
+        
+    else:
+        appuisgauche=0
+def relspace(a):
+    global appuisspace
+    appuisspace=1
+def tirer(a):
+    global y,x,ammo,textammo,laser1,appuisspace,doubletir
+    if appuisspace==0:
+    
+
+        
+        if laser1==1:
+            fen.after(1,laser,x,0,0)
+        elif ammo>0:
+            ammo-=1
+            can.delete(textammo)
+            textammo=can.create_text(0,0,font="ubuntu 20",text="munition: "+str(ammo),fill="red",anchor=NW)
+            if doubletir==0:
+                fen.after(1,missile,x,y,0)
+            else:   
+                fen.after(1,double,x,y,0,0)
+        fen.after(100,tirer,a)
+    else:
+        appuisspace=0
+    
+        
+def missile_enemi(xme,yme,mise):
+    global x,gameover,nom_enemi,textstart
+    if yme<510:
+        can.delete(mise)
+        yme+=10
+        mise=can.create_rectangle(xme+20,yme,xme+23,yme-10,fill="white")
+        fen.after(25,missile_enemi,xme,yme,mise)
+        if (xme==x or xme==x+20 or xme==x-20) and yme==450:
+            gameover=0
+            can.delete(textstart)
+            textstart=can.create_text(340,250,font="arial 20",text="game over press s to restart",fill="red")
+            nom_enemi=[]
+            
+
+def missile(xm,ym,mis):
+    global nom_enemi,x_enemi,y_enemi,score,x
+    
+    if ym>0:
+        
+        for I in nom_enemi:
+           
+            
+            if ym==y_enemi[I] and xm==x_enemi[I]:
+                nom_enemi.remove(I)
+                fen.after(1,enemi,-40,xm,0,I)
+                can.delete(list_en[I])
+                score+=1000
+               
+        z=1
+        can.delete(mis)
+        ym-=10
+        
+        mis=can.create_rectangle(xm+19,ym,xm+22,ym-10,fill="yellow")
+        fen.after(1,affscore)
+        fen.after(20,missile,xm,ym,mis)
+        
+        
+        
+def enemi(y,xe,en,ne):
+    global gameover,x_enemi,nom_enemi,y_enemi,score,textstart
+    if y<430:
+        x_enemi[ne]=xe
+        
+        
+        y_enemi[ne]=y
+        can.delete(en)
+        if ne in nom_enemi:
+            if randrange(6)==1:
+                fen.after(1,missile_enemi,xe,y,0)
+            
+            y+=10
+            en=can.create_image(xe+10,y,anchor=NW,image=photoenemi)
+            list_en[ne]=en
+            
+            
+            
+            fen.after(1000,enemi,y,xe,en,ne)
+        
+    else:
+        gameover=0
+        
+        textstart=can.create_text(340,250,font="arial 20",text="game over press s to restart",fill="red")
+        nom_enemi=[]
+        
+def start(event):
+    global gameover,score,nom_enemi,x_enemi,y_enemi,x,y,ne,appuisdroite,appuisgauche,textstart
+    can.delete(textstart)
+    #can.create_rectangle(0,70,700,300,fill="black")
+    
+    if gameover==0:
+        can.delete(textstart)
+        gameover=1
+        ne=-1
+        
+        score=00000
+        
+        fen.after(1,affscore)
+        nom_enemi=[]
+        x_enemi=[]
+        y_enemi=[]
+        fen.after(1,new_enemi,2000)
+        
+
+def new_enemi(time):
+    global gameover,ne,nom_enemi,x_enemi,y_enemi
+    if gameover==1:
+        xe=randrange(1,34)
+        xe=xe*20
+        ne+=1
+        if time>=200:
+            time-=10
+        nom_enemi.append(ne)
+        x_enemi.append(0)
+        y_enemi.append(0)
+        list_en.append(0)
+        if randrange(10)==1:
+            choixbonu=randrange(5)
+            fen.after(10,bonus,xe,20,0,ne,choixbonu)
+            fen.after(time,new_enemi,time)
+        else:
+
+            fen.after(time,new_enemi,time)
+            
+            fen.after(10,enemi,20,xe,0,ne)
+        
+fen=Tk()
+
+fen.bind("<Left>",gauche)
+fen.bind("<KeyRelease-Left>",relgauche)
+fen.bind("<Right>",droite)
+fen.bind("<KeyRelease-Right>",reldroite)
+fen.bind("<space>",tirer)
+fen.bind("<KeyRelease-space>",relspace)
+fen.bind("<s>",start)
+
+
+can=Canvas(fen,height=500,width=700,bg="blue")
+can.grid(column=0,row=1)
+fond=PhotoImage(file="star_de.GIF")
+can.create_image(0,0,anchor=NW,image=fond)
+textscore = can.create_text(700,0,font="ubuntu 20",text="score: "+str(score),fill="red",anchor=NE)
+textammo=can.create_text(0,0,font="ubuntu 20",text="munition: "+str(ammo),fill="red",anchor=NW)
+textstart=can.create_text(340,250,font="arial 20",text="Press S to start",fill="red")
+photo=PhotoImage(file="vaisseau.GIF")
+photoenemi=PhotoImage(file="enemi.GIF")
+photolaser=PhotoImage(file="bonus_laser.GIF")
+photoammo=PhotoImage(file="ammo.GIF")
+photonuke=PhotoImage(file="nuke.GIF")
+photodouble=PhotoImage(file="ammo bonus.GIF")
+
+vaisseau = can.create_image(x,450 ,image=photo, anchor=W)
+fen.mainloop()
+
+

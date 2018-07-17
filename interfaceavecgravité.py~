@@ -1,0 +1,169 @@
+from tkinter import*
+from math import *
+from random import *
+import os
+import sys
+x=10
+pos,pos1=0,0
+y=430
+oqp=0
+d=1
+l=0
+appuisright=0
+appuisleft=0
+b=40
+def openblackjack():
+    global oqp
+    os.system("cd .")
+    os.system("python3 blackjack.py")
+    oqp=0
+def openspaceinvader():
+    global oqp
+    os.system("cd .")
+    os.system("python3 spaceinvader.py")
+    oqp=0
+        
+    
+
+
+def finsaut():
+    global y
+    y=430
+    
+def relleft(p):
+    global appuisleft
+
+    appuisleft=1 #lorsque l'on lache la touche on mets la variable a 1 et on peut ainsi bloque la fonction left
+    
+def left(p):
+    global x,y,l,carre,gauche,pos,pos1,d,appuisleft
+    if appuisleft==0: #tant que l'on a pas relache la touche on execute la fonction
+        if  x<10 or (x>85 and x<160)or(x>235 and x<310)or (x>385 and  x<460) or (x>535 and  x<610)or y>300:
+            x-=5
+        l=1
+        can.delete(carre)
+        
+            
+        if d==0:
+            carre=can.create_image(x,y-50,ancho=NW,image=sautgauche)
+        elif pos<5:
+            pos+=1
+            carre=can.create_image(x,y-50,anchor=NW,image=gauche)
+        elif pos1<5:
+            pos1+=1
+            carre=can.create_image(x,y-50,anchor=NW,image=gauche1)
+        else:
+            pos=0
+            pos1=0
+            carre=can.create_image(x,y-50,anchor=NW,image=gauche)
+        fen.after(10,left,p)#on execute la fonction left 10ms plus tard 
+    else:
+        appuisleft=0
+
+def relright(p):
+    global appuisright
+    appuisright=1
+def right(p):
+    global x,l,y,carre,pos,pos1,d,appuisright
+    if appuisright==0:
+        if  x<10 or (x>85 and x<160)or(x>235 and x<310)or (x>385 and  x<460) or (x>535 and  x<610)or y>300:
+            x+=5
+        l=0
+        can.delete(carre)
+        if d==0:
+            carre=can.create_image(x,y-50,anchor=NW,image=saut)
+        elif pos<5:
+            pos+=1
+            carre=can.create_image(x,y-50,anchor=NW,image=droite)
+        elif pos1<5:
+            pos1+=1
+            carre=can.create_image(x,y-50,anchor=NW,image=droite1)
+        else:
+            pos=0
+            pos1=0
+            carre=can.create_image(x,y-50,anchor=NW,image=droite)
+        fen.after(10,right,p)
+    else:
+        appuisright=0
+
+def jump():
+    global a,b,y,c,d,carre,l,oqp
+    if ((x>10 and x<85)or(x>160 and x<235)or(x>310 and x<385)or(x>460 and x<535)or(x>610 and x<685)) and y<300 and y>250 and b>=0:
+        b=0
+    if (x>10 and x<85) and y<300 and y>250:
+        if oqp==0:
+            
+        
+            fen.after(1000,openblackjack)
+            oqp=1
+        
+    if (x>160 and x<235) and y<300 and y>250:
+
+        if oqp==0:
+            fen.after(1000,openspaceinvader)
+            oqp=1
+    if y>=430 and b<=0:
+        d=1
+        finsaut()
+    
+
+
+    if y<430 or b>=0:
+       b-=1
+       y-=b
+       
+       fen.after(25,jump)
+       
+       
+    can.delete(carre)
+    
+    if l==1:
+        carre=can.create_image(x,y-50,ancho=NW,image=sautgauche)
+    else:
+        carre=can.create_image(x,y-50,ancho=NW,image=saut)
+    if y==430:
+        can.delete(carre)
+        carre=can.create_image(x,y-50,anchor=NW,image=gauche)
+def sauter(p):
+    global a,b,c,d
+    if d==1:
+        b=20
+        d=0
+        fen.after(1,jump)
+
+fen=Tk()
+fen.geometry("750x500+100+0")
+gauche=PhotoImage(file="stickman.GIF")
+gauche1=PhotoImage(file="stickmansta1.GIF")
+saut=PhotoImage(file="stickmanjump.GIF")
+sautgauche=PhotoImage(file="stickmanjumpgauche.GIF")
+droite=PhotoImage(file="stickmandroite.GIF")
+droite1=PhotoImage(file="stickmansta1droite.GIF")
+ciel=PhotoImage(file="ciel.GIF")
+bloc=PhotoImage(file="block.GIF")
+
+can = Canvas(fen,width=750,height=510)
+can.pack()
+can.create_image(0,0,anchor=NW,image=ciel)
+for i in range(13):
+ can.create_image(i*60,440,anchor=NW,image=bloc)
+#can.create_line(0,440,750,440)
+carre=can.create_image(x,y-50,anchor=NW,image=droite)
+block=PhotoImage(file="brick.GIF")
+can.create_image(50,200,anchor=NW,image=block)
+can.create_image(200,200,anchor=NW,image=block)
+can.create_image(350,200,anchor=NW,image=block)
+can.create_image(500,200,anchor=NW,image=block)
+can.create_image(650,200,anchor=NW,image=block)
+can.create_text(75,190,text="blackjack")
+can.create_text(225,190,text="spaceinvader")
+can.create_text(375,190,text="money drop")
+can.create_text(525,190,text="bomberman")
+can.create_text(675,190,text="adventure block")
+fen.bind("<KeyPress-Left>",left)
+fen.bind("<KeyRelease-Left>",relleft)
+fen.bind("<KeyPress-Right>",right)
+fen.bind("<KeyRelease-Right>",relright)
+
+fen.bind("<KeyPress-space>",sauter)
+fen.mainloop()
